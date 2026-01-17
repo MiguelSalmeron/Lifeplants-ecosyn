@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco-Sync: Monitor</title>
+    <title>Eco-Sync: Global Monitor</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        /* --- DASHBOARD BASE STYLES --- */
         body { background-color: #f0f2f5; }
         .dashboard-container { max-width: 800px; margin: 0 auto; padding-top: 20px; }
         
         .weather-card { 
             background: #2c3e50; color: white; padding: 20px; border-radius: 12px; 
-            margin-bottom: 30px; text-align: center;
+            margin-bottom: 30px; text-align: center; position: relative;
         }
+        /* Estilo para el buscador dentro de la tarjeta */
+        .city-search { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        .city-search input { 
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; 
+            height: auto; padding: 8px; font-size: 0.9rem;
+        }
+        .city-search button { width: auto; padding: 8px 15px; font-size: 0.9rem; }
+        
         .heat-alert { animation: pulse 2s infinite; background-color: #c0392b; border: 1px solid #e74c3c; }
         
-        /* --- PLANT CARD STYLES --- */
         .plant-card { 
             background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #ccc;
@@ -26,25 +32,17 @@
         .status-thirsty { border-left-color: #f1c40f; }
         .status-critical { border-left-color: #e74c3c; }
         
-        /* --- BIO-GRAPHICS ENGINE (SVG Animations) --- */
+        /* Bio-Graphics */
         .plant-svg { width: 100px; height: 100px; margin: 0 auto; display: block; transition: all 1s ease; }
         .plant-path { transition: fill 1s ease, transform 1s ease; transform-origin: bottom center; }
-
-        /* Estados Visuales de la Planta */
-        /* Feliz: Verde y erguida */
         .status-happy .plant-path { fill: #2ecc71; transform: rotate(0deg); }
-        /* Sedienta: Amarilla y un poco inclinada */
         .status-thirsty .plant-path { fill: #f1c40f; transform: rotate(15deg); }
-        /* Crítica: Morada/Café y caída */
         .status-critical .plant-path { fill: #8e44ad; transform: rotate(45deg) translateY(10px); }
-
-        /* Animación de "Respiración" para plantas felices */
         .status-happy .plant-svg { animation: breathe 3s infinite ease-in-out; }
         
         @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
-        /* --- UTILS --- */
         progress { height: 20px; border-radius: 10px; }
         progress.happy::-webkit-progress-value { background-color: #2ecc71; }
         progress.thirsty::-webkit-progress-value { background-color: #f1c40f; }
@@ -61,13 +59,18 @@
         <div class="weather-card {% if temp > 30 %}heat-alert{% endif %}">
             <hgroup>
                 <h1>Lifeplants Eco-Sync</h1>
-                <h3>Real-time Digital Twin System</h3>
+                <h3 style="color: #bdc3c7;">Global Digital Twin System</h3>
             </hgroup>
+            
+            <form action="/" method="get" class="city-search">
+                <input type="text" name="city" placeholder="Enter City (e.g. London)" value="{{ current_city }}" required>
+                <button type="submit" class="contrast">Sync 🌍</button>
+            </form>
             
             <div class="grid">
                 <div>
                     <h2>{{ temp }}°C</h2>
-                    <small>Current Temp</small>
+                    <small>in {{ weather.name if weather else current_city }}</small>
                 </div>
                 <div>
                     <h2>{{ weather.weather[0].main if weather else 'Offline' }}</h2>
@@ -76,7 +79,7 @@
             </div>
 
             {% if temp > 30 %}
-            <article style="background: rgba(0,0,0,0.2); margin-top: 15px; border:none;">
+            <article style="background: rgba(0,0,0,0.2); margin-top: 15px; border:none; padding: 10px;">
                 <strong>⚠️ EXTREME HEAT WARNING</strong><br>
                 Evaporation Rate Multiplier: <strong>2.5x</strong> active.
             </article>
