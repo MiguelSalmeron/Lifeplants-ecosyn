@@ -3,89 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifeplants: Eco-Sync</title>
+    <title>Eco-Sync: Monitor</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        /* Custom Styles for Hackathon Polish */
+        body { background-color: #f0f2f5; }
+        .dashboard-container { max-width: 800px; margin: 0 auto; padding-top: 20px; }
+        
         .weather-card { 
-            background: #2c3e50; color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            text-align: center;
+            background: #2c3e50; color: white; padding: 20px; border-radius: 12px; 
+            margin-bottom: 30px; text-align: center;
         }
+        .heat-alert { animation: pulse 2s infinite; background-color: #c0392b; border: 1px solid #e74c3c; }
+        
         .plant-card { 
-            border: 2px solid #e0e0e0; padding: 20px; border-radius: 15px; text-align: center; 
-            transition: transform 0.2s; background: white;
+            background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #ccc;
         }
-        .plant-card:hover { transform: translateY(-5px); border-color: #27ae60; }
         
-        /* Status Colors */
-        .happy { border-color: #2ecc71; background-color: #f0fff4; }
-        .thirsty { border-color: #e67e22; background-color: #fffaf0; }
+        .status-happy { border-left-color: #2ecc71; }
+        .status-thirsty { border-left-color: #f1c40f; }
+        .status-critical { border-left-color: #e74c3c; }
         
-        .emoji { font-size: 4rem; display: block; margin: 10px 0; }
-        .temp-display { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+        progress { height: 20px; border-radius: 10px; }
+        progress.happy::-webkit-progress-value { background-color: #2ecc71; }
+        progress.thirsty::-webkit-progress-value { background-color: #f1c40f; }
+        progress.critical::-webkit-progress-value { background-color: #e74c3c; }
+        
+        .ai-box { 
+            background: #e8f4fd; border: 1px solid #3498db; color: #2980b9; 
+            padding: 10px; font-size: 0.85rem; border-radius: 5px; margin-top: 10px;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <main class="container">
-        <div class="weather-card">
-            <h1 style="margin-bottom: 0;">🌍 Lifeplants Eco-Sync</h1>
-            <p><small>Powered by OpenWeatherMap API</small></p>
+    <main class="dashboard-container">
+        <div class="weather-card {% if temp > 30 %}heat-alert{% endif %}">
+            <hgroup>
+                <h1>Lifeplants Eco-Sync</h1>
+                <h3>Real-time Digital Twin System</h3>
+            </hgroup>
             
-            {% if weather %}
-                <div class="temp-display">{{ temp }}°C</div>
-                <h3>Weather in {{ weather.name }}: <strong>{{ weather.weather[0].description|capitalize }}</strong></h3>
-                
-                {% if temp > 30 %}
-                    <article style="background-color: #c0392b; color: white; border: none;">
-                        <strong>🔥 HEAT ALERT!</strong> High temperatures detected in Managua. 
-                        Your plants' soil moisture will deplete 2x faster. 
-                        <br><em>Action Required: Check water levels immediately.</em>
-                    </article>
-                {% else %}
-                    <article style="background-color: #27ae60; color: white; border: none;">
-                        <strong>🌿 Optimal Conditions.</strong> The weather is stable. 
-                        Your digital and physical plants are thriving.
-                    </article>
-                {% endif %}
-            {% else %}
-                <p>⚠️ Searching for satellites...</p>
+            <div class="grid">
+                <div>
+                    <h2>{{ temp }}°C</h2>
+                    <small>Current Temp</small>
+                </div>
+                <div>
+                    <h2>{{ weather.weather[0].main if weather else 'Offline' }}</h2>
+                    <small>Condition</small>
+                </div>
+            </div>
+
+            {% if temp > 30 %}
+            <article style="background: rgba(0,0,0,0.2); margin-top: 15px; border:none;">
+                <strong>⚠️ EXTREME HEAT WARNING</strong><br>
+                Evaporation Rate Multiplier: <strong>2.5x</strong> active.
+            </article>
             {% endif %}
         </div>
 
-        <article>
-            <header><strong>🌱 Plant a New Seed</strong></header>
+        <details>
+            <summary role="button" class="secondary outline">🌱 Initialize New Plant Node</summary>
             <form action="/add" method="post">
                 <div class="grid">
-                    <input type="text" name="name" placeholder="Plant Name (e.g., Groot)" required>
-                    <input type="text" name="species" placeholder="Species (e.g., Sunflower)" required>
-                    <button type="submit" style="background-color: #27ae60; border-color: #27ae60;">Grow 🌱</button>
+                    <input type="text" name="name" placeholder="ID / Nickname" required>
+                    <input type="text" name="species" placeholder="Biological Species" required>
+                    <button type="submit">Sync Node</button>
                 </div>
             </form>
-        </article>
+        </details>
 
-        <div class="grid">
-            {% for plant in plants %}
-            <div class="plant-card {{ plant.status }}">
-                <span class="emoji">
-                    {% if plant.status == 'happy' %}🌿{% else %}🥀{% endif %}
-                </span>
-                <h2>{{ plant.name }}</h2>
-                <small>{{ plant.species }}</small>
-                <br><br>
-                <div style="margin-bottom: 10px;">
-                    Status: <strong>{{ plant.status|upper }}</strong>
+        {% for plant in plants %}
+        <div class="plant-card status-{{ plant.status }}">
+            <div class="grid">
+                <div>
+                    <strong>{{ plant.name }}</strong> <small>({{ plant.species }})</small>
                 </div>
-                <a href="/water/{{ plant.id }}" role="button" class="outline">💧 Water Me</a>
+                <div style="text-align: right;">
+                    <small>Status: {{ plant.status|upper }}</small>
+                </div>
             </div>
-            {% else %}
-                <p>Your garden is empty. Start by planting a seed above!</p>
-            {% endfor %}
+            
+            <label>Soil Moisture Integrity: {{ plant.humidity }}%</label>
+            <progress value="{{ plant.humidity }}" max="100" class="{{ plant.status }}"></progress>
+            
+            {% if plant.advice %}
+            <div class="ai-box">
+                <strong>🤖 AI Agronomist:</strong> {{ plant.advice }}
+            </div>
+            {% endif %}
+            
+            <a href="/water/{{ plant.id }}" role="button" class="outline" style="width: 100%; margin-top: 10px;">
+                💧 Rehydrate System
+            </a>
         </div>
-        
-        <footer style="text-align: center; margin-top: 50px;">
-            <small>Built with 💚 by Miguel Salmerón for United Hacks v6</small>
-        </footer>
+        {% else %}
+        <p style="text-align: center; color: gray;">No biological nodes synced. Initialize one above.</p>
+        {% endfor %}
     </main>
 </body>
 </html>
