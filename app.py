@@ -2,17 +2,16 @@ import os
 import sqlite3
 import requests
 from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime
 from dotenv import load_dotenv
 
-#Configuración Inicial
 load_dotenv()
 app = Flask(__name__)
 
+# Secure Config
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
 CITY = "Managua"
 
-#Conexión a la database
+# Database Connection
 def get_db_connection():
     conn = sqlite3.connect('lifeplants.db')
     conn.row_factory = sqlite3.Row
@@ -34,11 +33,12 @@ def init_db():
 
 init_db()
 
-#logica
+# Weather Logic
 def get_weather(city_name):
     if not API_KEY: return None
     try:
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric&lang=es"
+
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric&lang=en"
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -46,14 +46,14 @@ def get_weather(city_name):
         return None
     return None
 
-#  Rutas de la Web
+
 @app.route('/')
 def index():
-    # Obtener clima real
+    #  Get weathert
     weather_data = get_weather(CITY)
     current_temp = weather_data['main']['temp'] if weather_data else 25
     
-    # Calcular estado de las plantas 
+    # Get plants
     conn = get_db_connection()
     plants = conn.execute('SELECT * FROM plants').fetchall()
     conn.close()
@@ -74,6 +74,7 @@ def add_plant():
 @app.route('/water/<int:id>')
 def water_plant(id):
     conn = get_db_connection()
+    # Reset status to happy
     conn.execute('UPDATE plants SET last_watered = CURRENT_TIMESTAMP, status = "happy" WHERE id = ?', (id,))
     conn.commit()
     conn.close()
