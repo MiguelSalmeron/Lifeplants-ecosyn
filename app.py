@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import requests
+import random
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for
 from dotenv import load_dotenv
@@ -43,27 +44,42 @@ def get_weather(city_name):
     except:
         return None
 
-# --- LÓGICA DE IA (SIEMPRE ACTIVA) ---
+# --- LÓGICA DE IA (ROBUSTA Y SIEMPRE ACTIVA) ---
 def get_gemini_advice(species, temp, humidity, city):
-    # Sin restricciones: La IA siempre opina
-    if not GEMINI_KEY: return None 
+    # 1. Verificación de clave
+    if not GEMINI_KEY: 
+        print("🔴 DEBUG: No se encontró GEMINI_API_KEY en .env")
+        return "Please configure your AI API Key in .env"
+    
     try:
-        # Prompt: Asistente sabio que da datos curiosos si todo está bien, o ayuda urgente si no.
-        prompt = (f"Act as a wise and helpful botanical assistant. Plant: {species}. "
+        # Prompt: Asistente sabio que siempre tiene algo que decir
+        prompt = (f"Act as a wise zen gardener. Plant: {species}. "
                   f"Location: {city} (Temp: {temp}°C). Soil Humidity: {humidity}%. "
-                  f"If the plant is healthy, give a growth tip or fun fact. "
-                  f"If it needs water, give urgent advice. "
-                  f"Keep it to 1 short sentence in English.")
+                  f"If healthy, give a poetic fact. If thirsty, give urgent advice. "
+                  f"Max 1 short sentence in English.")
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        response = requests.post(url, json=payload, timeout=5)
+        
+        # Timeout de 3 segundos para proteger la app
+        response = requests.post(url, json=payload, timeout=3)
         
         if response.status_code == 200:
             return response.json()['candidates'][0]['content']['parts'][0]['text']
-    except:
-        return "Nature is silent right now (Check API)."
-    return None
+        else:
+            print(f"⚠️ DEBUG API Error: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"⚠️ DEBUG Network Error: {e}")
+
+    # --- PLAN B: FRASES DE RESPALDO (Por si falla la API) ---
+    fallback_tips = [
+        f"Nature thrives in {city}, but keep an eye on hydration.",
+        "Remember: Overwatering is as dangerous as drought.",
+        f"At {temp}°C, ensure your plant gets the right light.",
+        "Photosynthesis is the silent music of the earth.",
+        "Check the soil moisture; roots need to breathe too."
+    ]
+    return random.choice(fallback_tips)
 
 # --- MOTOR DE FÍSICA ---
 def calculate_status_physics(last_watered_str, current_temp):
@@ -102,7 +118,7 @@ def index():
     processed_plants = []
     for plant in db_plants:
         humidity, status = calculate_status_physics(plant['last_watered'], current_temp)
-        # IA llamada siempre
+        # Llamamos a la IA (que ahora nunca fallará en silencio)
         advice = get_gemini_advice(plant['species'], current_temp, humidity, city)
         
         processed_plants.append({
