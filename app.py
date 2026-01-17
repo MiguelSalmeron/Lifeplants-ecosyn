@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 
-# Configuración
+# --- CONFIGURACIÓN ---
 OPENWEATHER_KEY = os.getenv('OPENWEATHER_API_KEY')
 GEMINI_KEY = os.getenv('GEMINI_API_KEY')
 
@@ -33,23 +33,27 @@ def init_db():
 
 init_db()
 
-# --- MODIFICADO: Ahora acepta una ciudad dinámica ---
+# --- LÓGICA DE CLIMA ---
 def get_weather(city_name):
     if not OPENWEATHER_KEY: return None
     try:
-        # Usamos la ciudad que pide el usuario
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={OPENWEATHER_KEY}&units=metric&lang=en"
         response = requests.get(url, timeout=3)
         return response.json() if response.status_code == 200 else None
     except:
         return None
 
+# --- LÓGICA DE IA (SIEMPRE ACTIVA) ---
 def get_gemini_advice(species, temp, humidity, city):
-    if not GEMINI_KEY or humidity > 60: return None
+    # Sin restricciones: La IA siempre opina
+    if not GEMINI_KEY: return None 
     try:
-        prompt = (f"Act as a survival botanist. Plant: {species}. "
+        # Prompt: Asistente sabio que da datos curiosos si todo está bien, o ayuda urgente si no.
+        prompt = (f"Act as a wise and helpful botanical assistant. Plant: {species}. "
                   f"Location: {city} (Temp: {temp}°C). Soil Humidity: {humidity}%. "
-                  f"Give a 1-sentence urgent survival tip in English.")
+                  f"If the plant is healthy, give a growth tip or fun fact. "
+                  f"If it needs water, give urgent advice. "
+                  f"Keep it to 1 short sentence in English.")
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -58,9 +62,10 @@ def get_gemini_advice(species, temp, humidity, city):
         if response.status_code == 200:
             return response.json()['candidates'][0]['content']['parts'][0]['text']
     except:
-        return "Check water levels immediately."
+        return "Nature is silent right now (Check API)."
     return None
 
+# --- MOTOR DE FÍSICA ---
 def calculate_status_physics(last_watered_str, current_temp):
     try:
         last_watered = datetime.fromisoformat(last_watered_str)
@@ -68,8 +73,10 @@ def calculate_status_physics(last_watered_str, current_temp):
         last_watered = datetime.now()
 
     hours_passed = (datetime.now() - last_watered).total_seconds() / 3600
+    
+    # Física: base 5% + multiplicador de calor
     base_decay_rate = 5 
-    multiplier = 2.5 if current_temp > 30 else 1.0 # Multiplicador de calor
+    multiplier = 2.5 if current_temp > 30 else 1.0
     
     moisture_loss = hours_passed * base_decay_rate * multiplier
     current_humidity = max(0, 100 - moisture_loss)
@@ -80,10 +87,10 @@ def calculate_status_physics(last_watered_str, current_temp):
         
     return int(current_humidity), status
 
+# --- RUTAS ---
 @app.route('/')
 def index():
-    # 1. Buscamos si hay una ciudad en la URL (?city=London), si no, Managua
-    city = request.args.get('city', 'Managua')
+    city = request.args.get('city', 'Managua') # Ciudad por defecto
     
     weather_data = get_weather(city)
     current_temp = weather_data['main']['temp'] if weather_data else 35 
@@ -95,7 +102,7 @@ def index():
     processed_plants = []
     for plant in db_plants:
         humidity, status = calculate_status_physics(plant['last_watered'], current_temp)
-        # Pasamos la ciudad a la IA también
+        # IA llamada siempre
         advice = get_gemini_advice(plant['species'], current_temp, humidity, city)
         
         processed_plants.append({
@@ -107,7 +114,6 @@ def index():
             'advice': advice
         })
     
-    # Pasamos 'city' al template para que el buscador recuerde qué escribiste
     return render_template('index.html', plants=processed_plants, weather=weather_data, temp=current_temp, current_city=city)
 
 @app.route('/add', methods=('POST',))
