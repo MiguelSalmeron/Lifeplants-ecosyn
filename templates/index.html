@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifeplants: Eco-Sync</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        /* Custom Styles for Hackathon Polish */
+        .weather-card { 
+            background: #2c3e50; color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .plant-card { 
+            border: 2px solid #e0e0e0; padding: 20px; border-radius: 15px; text-align: center; 
+            transition: transform 0.2s; background: white;
+        }
+        .plant-card:hover { transform: translateY(-5px); border-color: #27ae60; }
+        
+        /* Status Colors */
+        .happy { border-color: #2ecc71; background-color: #f0fff4; }
+        .thirsty { border-color: #e67e22; background-color: #fffaf0; }
+        
+        .emoji { font-size: 4rem; display: block; margin: 10px 0; }
+        .temp-display { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div class="weather-card">
+            <h1 style="margin-bottom: 0;">🌍 Lifeplants Eco-Sync</h1>
+            <p><small>Powered by OpenWeatherMap API</small></p>
+            
+            {% if weather %}
+                <div class="temp-display">{{ temp }}°C</div>
+                <h3>Weather in {{ weather.name }}: <strong>{{ weather.weather[0].description|capitalize }}</strong></h3>
+                
+                {% if temp > 30 %}
+                    <article style="background-color: #c0392b; color: white; border: none;">
+                        <strong>🔥 HEAT ALERT!</strong> High temperatures detected in Managua. 
+                        Your plants' soil moisture will deplete 2x faster. 
+                        <br><em>Action Required: Check water levels immediately.</em>
+                    </article>
+                {% else %}
+                    <article style="background-color: #27ae60; color: white; border: none;">
+                        <strong>🌿 Optimal Conditions.</strong> The weather is stable. 
+                        Your digital and physical plants are thriving.
+                    </article>
+                {% endif %}
+            {% else %}
+                <p>⚠️ Searching for satellites...</p>
+            {% endif %}
+        </div>
+
+        <article>
+            <header><strong>🌱 Plant a New Seed</strong></header>
+            <form action="/add" method="post">
+                <div class="grid">
+                    <input type="text" name="name" placeholder="Plant Name (e.g., Groot)" required>
+                    <input type="text" name="species" placeholder="Species (e.g., Sunflower)" required>
+                    <button type="submit" style="background-color: #27ae60; border-color: #27ae60;">Grow 🌱</button>
+                </div>
+            </form>
+        </article>
+
+        <div class="grid">
+            {% for plant in plants %}
+            <div class="plant-card {{ plant.status }}">
+                <span class="emoji">
+                    {% if plant.status == 'happy' %}🌿{% else %}🥀{% endif %}
+                </span>
+                <h2>{{ plant.name }}</h2>
+                <small>{{ plant.species }}</small>
+                <br><br>
+                <div style="margin-bottom: 10px;">
+                    Status: <strong>{{ plant.status|upper }}</strong>
+                </div>
+                <a href="/water/{{ plant.id }}" role="button" class="outline">💧 Water Me</a>
+            </div>
+            {% else %}
+                <p>Your garden is empty. Start by planting a seed above!</p>
+            {% endfor %}
+        </div>
+        
+        <footer style="text-align: center; margin-top: 50px;">
+            <small>Built with 💚 by Miguel Salmerón for United Hacks v6</small>
+        </footer>
+    </main>
+</body>
+</html>
