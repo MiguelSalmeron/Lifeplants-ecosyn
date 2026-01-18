@@ -6,6 +6,8 @@
     <title>LifePlants: Zen Monitor</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -21,8 +23,9 @@
             </hgroup>
             
             <form action="/" method="get" class="city-search">
-                <input type="text" name="city" placeholder="Search location..." value="{{ current_city }}" required>
+                <input id="cityInput" type="text" name="city" placeholder="Search location..." value="{{ current_city }}" required>
                 <button type="submit">Sync 🌏</button>
+                <button type="button" id="pickOnMapBtn" class="outline">Pick on map 🗺️</button>
             </form>
             
             <div class="grid" style="margin-top: 20px;">
@@ -167,6 +170,22 @@
 
     </main>
 
+    <!-- Modal de mapa -->
+    <div class="map-modal-backdrop" id="mapModal">
+        <div class="map-modal">
+            <header>
+                <h3>Pick on map</h3>
+                <button class="map-close-btn" id="closeMapModal" aria-label="Close map modal">✕</button>
+            </header>
+            <div class="map-body">
+                <div id="mapPicker"></div>
+            </div>
+            <div class="map-hint">
+                Click on the map to set your city. We’ll reverse-geocode with Nominatim (OSM) and fill the city field automatically.
+            </div>
+        </div>
+    </div>
+
     <script>
         // Control de visibilidad y texto del Widget de IA
         const widgetText = document.getElementById('aiText');
@@ -185,6 +204,9 @@
         }
     </script>
     
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/map_picker.js') }}"></script>
     <script src="{{ url_for('static', filename='js/zen_audio.js') }}"></script>
 </body>
 </html>

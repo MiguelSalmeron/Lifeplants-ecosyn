@@ -5,6 +5,7 @@
     --text-dark: #2c3e50;
     --glass-bg: rgba(255, 255, 255, 0.75);
     --glass-border: rgba(255, 255, 255, 0.6);
+    --danger: #d64545;
 }
 
 /* --- 2. FONDO BASE + CAPAS AMBIENTE (solo fondo) --- */
@@ -36,7 +37,7 @@ body::before {
     opacity: 0.22;
 }
 
-/* Capa dinámica para clima (ilustraciones/animaciones suaves) */
+/* Capa dinámica para clima */
 body::after {
     opacity: 0.75;
     transition: opacity 1.5s ease, filter 1.5s ease, background 2s ease;
@@ -45,9 +46,7 @@ body::after {
     background-size: cover;
 }
 
-/* ---------- ESTADOS DE CLIMA (pastel, low-sat) ---------- */
-
-/* Soleado */
+/* ---------- ESTADOS DE CLIMA ---------- */
 body.weather-clear {
     background: linear-gradient(135deg, #fdfcf9 0%, #e0f4f8 100%);
 }
@@ -147,7 +146,7 @@ body.weather-fog::after {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- 4. TARJETAS DE CRISTAL (Glassmorphism) --- */
+/* --- 4. TARJETAS DE CRISTAL --- */
 .glass-card { 
     background: var(--glass-bg); 
     backdrop-filter: blur(15px);
@@ -181,9 +180,10 @@ body.weather-fog::after {
 }
 
 /* --- 6. BUSCADOR REDONDEADO --- */
-.city-search { display: flex; gap: 10px; margin-top: 25px; }
+.city-search { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
 
 .city-search input { 
+    flex: 1 1 220px;
     border-radius: 50px; 
     border: 1px solid #dcdcdc; 
     background: rgba(255,255,255,0.9); 
@@ -282,7 +282,9 @@ progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #
 }
 
 .plant-card .glass-card .actions {
-    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 @media (max-width: 768px) {
@@ -291,4 +293,102 @@ progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #
 
 @media (min-width: 1200px) {
     .plant-card { flex: 1 1 calc(33.33% - 20px); }
+}
+
+/* --- 11. BOTONES ACCIONES --- */
+.btn-ghost {
+    width: 100%;
+    border-radius: 50px;
+    border: 2px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(45,106,79,0.15);
+}
+
+.btn-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 8px 20px rgba(214,69,69,0.15);
+}
+
+/* --- 12. MODAL MAPA (GLASS) --- */
+.map-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+}
+
+.map-modal {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    width: min(900px, 92vw);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+.map-modal header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.4);
+}
+
+.map-modal header h3 {
+    margin: 0;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+}
+
+.map-modal .map-body {
+    height: 520px;
+    position: relative;
+}
+
+#mapPicker {
+    height: 100%;
+    width: 100%;
+}
+
+.map-close-btn {
+    border: none;
+    background: transparent;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: transform 0.2s;
+}
+.map-close-btn:hover { transform: scale(1.08); }
+
+.map-hint {
+    padding: 10px 18px 18px 18px;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+/* Leaflet overrides to blend with glass */
+.leaflet-container {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(6px);
+}
+.leaflet-control-container .leaflet-top.leaflet-left .leaflet-control-zoom a {
+    border-radius: 10px !important;
 }
