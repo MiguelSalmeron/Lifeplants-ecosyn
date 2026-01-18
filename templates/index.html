@@ -11,6 +11,9 @@
 </head>
 
 <body class="weather-{{ weather.weather[0].main.lower() if weather else 'clear' }}">
+    <!-- Overlays de clima (lluvia + relámpagos) -->
+    <div class="rain-overlay" aria-hidden="true"></div>
+    <div class="thunder-flash" aria-hidden="true"></div>
 
     <main class="dashboard-container">
         

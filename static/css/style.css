@@ -44,10 +44,10 @@ body::after {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    z-index: 0;
 }
 
 /* ---------- ESTADOS DE CLIMA (pastel, low-sat) ---------- */
-/* Soleado */
 body.weather-clear {
     background: linear-gradient(135deg, #fdfcf9 0%, #e0f4f8 100%);
 }
@@ -58,7 +58,6 @@ body.weather-clear::after {
     animation: glow-spin 28s ease-in-out infinite alternate;
 }
 
-/* Nublado */
 body.weather-clouds {
     background: linear-gradient(160deg, #f5f7fa 0%, #d7dee8 60%, #c9d3e0 100%);
 }
@@ -71,7 +70,6 @@ body.weather-clouds::after {
     animation: clouds-drift 36s ease-in-out infinite alternate;
 }
 
-/* Lluvia / Llovizna */
 body.weather-rain,
 body.weather-drizzle {
     background: linear-gradient(180deg, #dbe3e7 0%, #e9f0f3 100%);
@@ -140,6 +138,8 @@ body.weather-fog::after {
     margin: 0 auto; 
     padding: 40px 18px 140px 18px; 
     animation: fadeIn 1.5s ease-out; 
+    position: relative;
+    z-index: 2;
 }
 
 @keyframes fadeIn {
@@ -411,4 +411,45 @@ progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #
 }
 .leaflet-control-container .leaflet-top.leaflet-left .leaflet-control-zoom a {
     border-radius: 10px !important;
+}
+
+/* --- 13. OVERLAYS CLIMA WOW (LLUVIA/RELÁMPAGOS) --- */
+.rain-overlay,
+.thunder-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    display: none;
+}
+
+body.weather-rain .rain-overlay,
+body.weather-drizzle .rain-overlay,
+body.weather-thunderstorm .rain-overlay {
+    display: block;
+    background-image:
+        linear-gradient(120deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) 2px, transparent 2px),
+        linear-gradient(120deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.08) 2px, transparent 2px);
+    background-size: 2px 18px, 2px 28px;
+    animation: rain-layer 0.8s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes rain-layer {
+    from { background-position: 0 -20px, 0 -30px; }
+    to   { background-position: 0 20px, 0 30px; }
+}
+
+body.weather-thunderstorm .thunder-flash {
+    display: block;
+    background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), rgba(255,255,255,0) 40%);
+    animation: lightning 6s infinite ease-in-out;
+    mix-blend-mode: screen;
+}
+
+@keyframes lightning {
+    0%, 92%, 100% { opacity: 0; filter: brightness(1); }
+    94% { opacity: 0.7; filter: brightness(1.4); }
+    96% { opacity: 0.25; filter: brightness(1.1); }
+    98% { opacity: 0; filter: brightness(1); }
 }
