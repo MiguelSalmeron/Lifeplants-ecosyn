@@ -175,6 +175,8 @@
             <div id="aiText">I’m watching your plants. Always watching.</div>
         </div>
 
+        <button class="chat-launcher" id="chatLauncher">💬 Chat with AI</button>
+
     </main>
 
     <!-- Modal de mapa -->
@@ -190,6 +192,21 @@
             <div class="map-hint">
                 Click on the map to set your city. We’ll reverse-geocode with Nominatim (OSM) and fill the city field automatically.
             </div>
+        </div>
+    </div>
+
+    <!-- Modal chatbot -->
+    <div class="chatbot-backdrop" id="chatbotBackdrop">
+        <div class="chatbot-modal">
+            <header>
+                <h3>Plant Coach</h3>
+                <button class="chatbot-close" id="chatbotClose" aria-label="Close chatbot">✕</button>
+            </header>
+            <textarea id="chatbotInput" placeholder="Ask about watering, light, heat/cold, or rescue tips..."></textarea>
+            <div class="chatbot-actions">
+                <button class="chatbot-send" id="chatbotSend">Send</button>
+            </div>
+            <div class="chatbot-response" id="chatbotResponse">Hi! I’m your plant coach. Ask me anything about care.</div>
         </div>
     </div>
 
@@ -240,5 +257,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/map_picker.js') }}"></script>
     <script src="{{ url_for('static', filename='js/zen_audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </body>
 </html>
