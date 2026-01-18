@@ -203,6 +203,18 @@
         function resetAI() {
             widgetText.style.opacity = 1;
         }
+
+        // Tema noche automática: clima nublado/lluvia/tormenta o hora local > 18:00
+        (function applyNightMode() {
+            const body = document.body;
+            const h = new Date().getHours();
+            const isLate = (h >= 18 || h < 6);
+            const isCloudy = body.classList.contains('weather-clouds');
+            const isRain = body.classList.contains('weather-rain') || body.classList.contains('weather-drizzle') || body.classList.contains('weather-thunderstorm');
+            if (isLate || isCloudy || isRain) {
+                body.classList.add('night-mode');
+            }
+        })();
     </script>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
