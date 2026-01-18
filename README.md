@@ -96,5 +96,5 @@ lifeplants-ecosyn/
 Climate inequality is real. A plant owner in a tropical country deals with heat stress that someone in a temperate climate never experiences. By connecting virtual plants to real weather, LifePlants makes this invisible problem visible and helps people understand how climate shapes daily life differently around the world.
 
 ## Built For
-
+Demo: https://lifeplants-ecosyn.onrender.com/
 United Hacks V6 | Human Interaction Track | Solo Hack
