@@ -190,7 +190,12 @@ body.weather-fog::after {
 }
 
 /* --- 6. BUSCADOR REDONDEADO --- */
-.city-search { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
+.city-search {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
 
 .city-search input { 
     flex: 1 1 220px;
@@ -202,15 +207,26 @@ body.weather-fog::after {
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.city-search button { 
-    border-radius: 50px; 
-    background-color: var(--primary); 
-    border: none; 
-    padding: 0 35px; 
-    font-weight: bold;
-    transition: transform 0.2s;
+/* Botones (Sync y Pick on map) */
+.city-search button,
+.city-search button.outline {
+    border-radius: 50px;
+    background: var(--primary);
+    border: 2px solid var(--primary);
+    padding: 0 35px;
+    font-weight: 700;
+    color: #fff !important;
+    text-shadow: none;
+    transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
 }
-.city-search button:hover { transform: scale(1.05); background-color: #1b4332; }
+
+.city-search button:hover,
+.city-search button.outline:hover {
+    transform: scale(1.05);
+    background-color: #1b4332;
+    border-color: #1b4332;
+    color: #fff !important;
+}
 
 /* --- 7. GRÁFICOS DE PLANTAS (SVG) --- */
 .plant-svg { 
@@ -550,18 +566,26 @@ body.night-mode .solar-compass .icon {
     background: linear-gradient(135deg, rgba(96,165,250,0.7), rgba(59,130,246,0.75));
 }
 
-/* --- 16. CHATBOT MODAL --- */
 .chat-launcher {
     position: fixed;
-    bottom: 90px;
-    right: 30px;
+    top: 24px !important;      /* fuerza esquina superior */
+    right: 24px !important;
+    bottom: auto !important;   /* anula el bottom previo */
     z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    min-width: fit-content;
+    max-width: 220px;
     border-radius: 999px;
     border: 2px solid var(--primary);
     background: #fff;
     color: var(--primary);
-    padding: 12px 18px;
+    padding: 10px 14px;
     font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
