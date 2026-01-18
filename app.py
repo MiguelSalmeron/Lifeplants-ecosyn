@@ -58,7 +58,6 @@ def get_gemini_advice(species, temp, humidity, city):
     Genera un consejo botánico utilizando la API de Google Gemini.
     Si la API falla o no hay clave, retorna una frase predefinida de respaldo.
     """
-    # Lista de frases de respaldo para uso en modo offline o error de API
     fallback_quotes = [
         "Your plant needs water. I don’t. I just need purpose.",
         "Everything looks fine. No complaints from the leaves so far.",
@@ -76,10 +75,11 @@ def get_gemini_advice(species, temp, humidity, city):
         return random.choice(fallback_quotes)
     
     try:
-        # Configuración del prompt para definir la personalidad del asistente
-        prompt = (f"Act as a friendly but slightly robotic botanical assistant. "
+        # Prompt prescriptivo y urgente (calor/frío)
+        prompt = (f"Act as an expert botanist specialized in climate adaptation. "
                   f"Plant: {species}. Location: {city} (Temp: {temp}°C). Humidity: {humidity}%. "
-                  f"Give a short 1-sentence observation. Be witty like: 'I just need purpose' or 'calculations™'.")
+                  f"Provide ONE short, specific survival tip focusing on heat/cold stress. "
+                  f"Tone: Urgent but helpful. Max 20 words.")
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -88,24 +88,18 @@ def get_gemini_advice(species, temp, humidity, city):
         if response.status_code == 200:
             return response.json()['candidates'][0]['content']['parts'][0]['text']
     except:
-        pass # En caso de excepción, se procede a usar las frases de respaldo
+        pass
         
     return random.choice(fallback_quotes)
 
 # --- MOTOR DE FÍSICA SIMULADA ---
 def calculate_status_physics(last_watered_str, current_temp):
-    """
-    Calcula el nivel de humedad y estado de la planta basado en el tiempo 
-    y la temperatura actual (evaporación simulada).
-    """
     try:
         last_watered = datetime.fromisoformat(last_watered_str)
     except:
         last_watered = datetime.now()
 
     hours_passed = (datetime.now() - last_watered).total_seconds() / 3600
-    
-    # Tasa base de decaimiento del 5% por hora, acelerada si la temperatura supera 30°C
     base_decay_rate = 5 
     multiplier = 2.5 if current_temp > 30 else 1.0
     
@@ -121,7 +115,6 @@ def calculate_status_physics(last_watered_str, current_temp):
 # --- RUTAS DE LA APLICACIÓN ---
 @app.route('/')
 def index():
-    """Ruta principal: Renderiza el tablero con el clima y el estado de las plantas."""
     city = request.args.get('city', 'Managua')
     weather_data = get_weather(city)
     current_temp = weather_data['main']['temp'] if weather_data else 35 
@@ -134,8 +127,6 @@ def index():
     for plant in db_plants:
         humidity, status = calculate_status_physics(plant['last_watered'], current_temp)
         advice = get_gemini_advice(plant['species'], current_temp, humidity, city)
-        
-        # Validación de existencia del campo 'plant_type' para compatibilidad
         plant_type_val = plant['plant_type'] if 'plant_type' in plant.keys() else 'Unknown'
 
         processed_plants.append({
@@ -152,10 +143,6 @@ def index():
 
 @app.route('/add', methods=('POST',))
 def add_plant():
-    """
-    Ruta para procesar el formulario de nuevas plantas.
-    Recibe: Nombre, Especie y Tipo (Categoría).
-    """
     name = request.form['name']
     species = request.form['species']
     plant_type = request.form['type']
@@ -169,7 +156,6 @@ def add_plant():
 
 @app.route('/water/<int:id>')
 def water_plant(id):
-    """Ruta para actualizar la fecha de riego de una planta específica."""
     conn = get_db_connection()
     conn.execute('UPDATE plants SET last_watered = ? WHERE id = ?', 
                  (datetime.now().isoformat(), id))
@@ -179,7 +165,6 @@ def water_plant(id):
 
 @app.route('/delete/<int:id>')
 def delete_plant(id):
-    """Ruta para eliminar una planta por id."""
     conn = get_db_connection()
     conn.execute('DELETE FROM plants WHERE id = ?', (id,))
     conn.commit()

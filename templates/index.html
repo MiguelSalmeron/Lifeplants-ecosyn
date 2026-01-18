@@ -6,9 +6,7 @@
     <title>LifePlants: Zen Monitor</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
@@ -27,6 +25,12 @@
                 <button type="submit">Sync 🌏</button>
                 <button type="button" id="pickOnMapBtn" class="outline">Pick on map 🗺️</button>
             </form>
+
+            {% if temp > 30 %}
+            <div class="heat-alert" style="margin-top: 12px; padding: 15px; border-radius: 15px;">
+                🔥 <strong>Heat Alert:</strong> Evaporation x2.5 active.
+            </div>
+            {% endif %}
             
             <div class="grid" style="margin-top: 20px;">
                 <div>
@@ -38,12 +42,6 @@
                     <small>{{ weather.weather[0].main if weather else 'Offline' }}</small>
                 </div>
             </div>
-
-            {% if temp > 30 %}
-            <div style="background: #ffebee; color: #c62828; padding: 15px; border-radius: 15px; margin-top: 20px; font-weight: bold;">
-                🔥 <strong>Heat Alert:</strong> Evaporation x2.5 active.
-            </div>
-            {% endif %}
         </div>
 
         <details style="margin-bottom: 30px;">
@@ -140,6 +138,7 @@
                         <small><strong>{{ plant.humidity }}%</strong></small>
                     </label>
                     <progress value="{{ plant.humidity }}" max="100" class="{{ plant.status }}"></progress>
+                    <div class="evap-note">🔥 Evaporation Rate: 2.5x (Extreme Heat)</div>
                     
                     <div class="actions">
                         <a href="/water/{{ plant.id }}" role="button" class="btn-ghost">
@@ -187,7 +186,6 @@
     </div>
 
     <script>
-        // Control de visibilidad y texto del Widget de IA
         const widgetText = document.getElementById('aiText');
         
         function updateAI(advice) {
@@ -204,7 +202,6 @@
         }
     </script>
     
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/map_picker.js') }}"></script>
     <script src="{{ url_for('static', filename='js/zen_audio.js') }}"></script>

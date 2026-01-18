@@ -37,7 +37,7 @@ body::before {
     opacity: 0.22;
 }
 
-/* Capa dinámica para clima */
+/* Capa dinámica para clima (ilustraciones/animaciones suaves) */
 body::after {
     opacity: 0.75;
     transition: opacity 1.5s ease, filter 1.5s ease, background 2s ease;
@@ -46,7 +46,8 @@ body::after {
     background-size: cover;
 }
 
-/* ---------- ESTADOS DE CLIMA ---------- */
+/* ---------- ESTADOS DE CLIMA (pastel, low-sat) ---------- */
+/* Soleado */
 body.weather-clear {
     background: linear-gradient(135deg, #fdfcf9 0%, #e0f4f8 100%);
 }
@@ -146,7 +147,7 @@ body.weather-fog::after {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- 4. TARJETAS DE CRISTAL --- */
+/* --- 4. TARJETAS DE CRISTAL (Glassmorphism) --- */
 .glass-card { 
     background: var(--glass-bg); 
     backdrop-filter: blur(15px);
@@ -170,6 +171,7 @@ body.weather-fog::after {
     font-weight: 800; 
     margin-bottom: 5px; 
     letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 .weather-section h3 { 
     color: var(--secondary); 
@@ -177,6 +179,7 @@ body.weather-fog::after {
     letter-spacing: 2px; 
     text-transform: uppercase; 
     font-size: 0.85rem;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 /* --- 6. BUSCADOR REDONDEADO --- */
@@ -230,6 +233,13 @@ progress.happy::-webkit-progress-value { background: linear-gradient(90deg, #a8e
 progress.thirsty::-webkit-progress-value { background: linear-gradient(90deg, #f7971e, #ffd200); }
 progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #cb2d3e, #ef473a); }
 
+.evap-note {
+    color: #b23a3a;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: 6px;
+}
+
 /* --- 9. WIDGETS FLOTANTES --- */
 .ai-companion-widget {
     position: fixed; bottom: 30px; right: 30px; width: 340px;
@@ -256,7 +266,17 @@ progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #
 .music-widget button:hover { transform: scale(1.05); }
 
 .ai-avatar { font-size: 2rem; }
-.heat-alert { border: 2px solid #ef5350; background: rgba(255, 235, 238, 0.9); }
+.heat-alert { 
+    border: 2px solid #ef5350; 
+    background: rgba(255, 235, 238, 0.9); 
+    animation: pulse-red 2s infinite;
+    font-weight: bold;
+}
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239,83,80,0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(239,83,80,0); }
+    100% { box-shadow: 0 0 0 0 rgba(239,83,80,0); }
+}
 
 /* --- 10. LAYOUT PLANTAS: CASCADA HORIZONTAL FLEX --- */
 .plant-collection {
