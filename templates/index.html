@@ -59,16 +59,16 @@
                     <label>Type</label>
                     <select name="type" required style="border-radius: 20px; border: 1px solid #dcdcdc; padding: 10px;">
                         <option value="" disabled selected>Select a type...</option>
-                        <option value="Árbol">Árbol</option>
-                        <option value="Arbusto">Arbusto</option>
-                        <option value="Planta herbácea">Planta herbácea</option>
-                        <option value="Flor">Flor</option>
-                        <option value="Trepadora / Enredadera">Trepadora / Enredadera</option>
-                        <option value="Rastrera">Rastrera</option>
-                        <option value="Suculenta">Suculenta</option>
+                        <option value="Tree">Tree</option>
+                        <option value="Shrub">Shrub</option>
+                        <option value="Herbaceous">Herbaceous</option>
+                        <option value="Flower">Flower</option>
+                        <option value="Vine">Vine</option>
+                        <option value="Groundcover">Groundcover</option>
+                        <option value="Succulent">Succulent</option>
                         <option value="Cactus">Cactus</option>
-                        <option value="Planta acuática">Planta acuática</option>
-                        <option value="Planta epífita">Planta epífita</option>
+                        <option value="Aquatic">Aquatic</option>
+                        <option value="Epiphyte">Epiphyte</option>
                     </select>
 
                     <button type="submit" style="background: #2d6a4f; border: none; border-radius: 50px; margin-top: 15px; width: 100%;">Grow 🌱</button>
@@ -76,47 +76,77 @@
             </div>
         </details>
 
-        <div class="grid">
+        <div class="plant-collection">
             {% for plant in plants %}
-            <div class="glass-card status-{{ plant.status }}" 
-                 data-advice="{{ plant.advice }}"
-                 onmouseenter="updateAI(this.dataset.advice)" 
-                 onmouseleave="resetAI()">
-                
-                <div class="grid">
-                    <div>
-                        <strong style="font-size: 1.4rem;">{{ plant.name }}</strong>
-                        <br><small style="color: #666; font-style: italic;">{{ plant.species }}</small>
-                    </div>
-                    <div style="text-align: right;">
-                        <span class="status-badge" style="background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
-                            {{ plant.status|upper }}
-                        </span>
+            <div class="plant-card">
+                <div class="glass-card status-{{ plant.status }}" 
+                     data-advice="{{ plant.advice }}"
+                     onmouseenter="updateAI(this.dataset.advice)" 
+                     onmouseleave="resetAI()">
+                    
+                    <div class="grid">
+                        <div>
+                            <strong style="font-size: 1.4rem;">{{ plant.name }}</strong>
+                            <br><small style="color: #666; font-style: italic;">{{ plant.species }}</small>
                         </div>
+                        <div style="text-align: right;">
+                            <span class="status-badge" style="background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+                                {{ plant.status|upper }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <svg class="plant-svg" viewBox="0 0 100 100" aria-hidden="true">
+                            <path fill="#795548" d="M25,75 L75,75 L70,95 L30,95 Z" />
+                            <rect x="25" y="70" width="50" height="5" fill="#5d4037" rx="2" />
+                            {% if plant.type == 'Cactus' %}
+                            <g class="plant-path">
+                                <path d="M50 70 Q50 50 50 30" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round" />
+                                <path d="M40 60 Q35 48 40 38" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" />
+                                <path d="M60 60 Q65 48 60 38" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" />
+                                <circle cx="50" cy="27" r="6" fill="currentColor" />
+                            </g>
+                            {% elif plant.type == 'Tree' %}
+                            <g class="plant-path">
+                                <rect x="46" y="45" width="8" height="25" rx="3" fill="currentColor"></rect>
+                                <circle cx="40" cy="45" r="14"></circle>
+                                <circle cx="58" cy="42" r="12"></circle>
+                                <circle cx="48" cy="32" r="10"></circle>
+                            </g>
+                            {% elif plant.type == 'Vine' %}
+                            <g class="plant-path">
+                                <path d="M38 70 C35 55 48 48 52 40 C56 32 44 28 46 22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                <path d="M62 70 C59 55 72 50 70 42 C68 34 58 30 60 22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                <circle cx="44" cy="30" r="4"></circle>
+                                <circle cx="66" cy="34" r="4"></circle>
+                            </g>
+                            {% else %}
+                            <g class="plant-path">
+                                <path d="M50,70 Q50,45 50,25" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" />
+                                <ellipse cx="30" cy="35" rx="20" ry="10" transform="rotate(-30 30 35)" />
+                                <ellipse cx="70" cy="35" rx="20" ry="10" transform="rotate(30 70 35)" />
+                                <circle cx="50" cy="20" r="7" fill="#ffeb3b" stroke="orange" stroke-width="1" />
+                            </g>
+                            {% endif %}
+                        </svg>
+                    </div>
+                    
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <small>Hydration</small>
+                        <small><strong>{{ plant.humidity }}%</strong></small>
+                    </label>
+                    <progress value="{{ plant.humidity }}" max="100" class="{{ plant.status }}"></progress>
+                    
+                    <div class="actions">
+                        <a href="/water/{{ plant.id }}" role="button" class="btn-ghost">
+                            💧 Water Plant
+                        </a>
+                        <a href="/delete/{{ plant.id }}" role="button" class="btn-ghost btn-danger" onclick="return confirm('Delete this plant?');">
+                            🗑️ Delete
+                        </a>
+                    </div>
                 </div>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <svg class="plant-svg" viewBox="0 0 100 100">
-                        <path fill="#795548" d="M25,75 L75,75 L70,95 L30,95 Z" />
-                        <rect x="25" y="70" width="50" height="5" fill="#5d4037" rx="2" />
-                        <g class="plant-path">
-                            <path d="M50,70 Q50,45 50,25" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" />
-                            <ellipse cx="30" cy="35" rx="20" ry="10" transform="rotate(-30 30 35)" />
-                            <ellipse cx="70" cy="35" rx="20" ry="10" transform="rotate(30 70 35)" />
-                            <circle cx="50" cy="20" r="7" fill="#ffeb3b" stroke="orange" stroke-width="1" />
-                        </g>
-                    </svg>
-                </div>
-                
-                <label style="display: flex; justify-content: space-between;">
-                    <small>Hydration</small>
-                    <small><strong>{{ plant.humidity }}%</strong></small>
-                </label>
-                <progress value="{{ plant.humidity }}" max="100" class="{{ plant.status }}"></progress>
-                
-                <a href="/water/{{ plant.id }}" role="button" style="width: 100%; margin-top: 20px; border-radius: 50px; background: transparent; border: 2px solid #2d6a4f; color: #2d6a4f; font-weight: bold;">
-                    💧 Water Plant
-                </a>
             </div>
             {% else %}
             <div style="text-align: center; color: #888; padding: 60px;">
@@ -143,7 +173,6 @@
         
         function updateAI(advice) {
             if (!advice) return;
-            // Transición suave de opacidad para el cambio de texto
             widgetText.style.opacity = 0;
             setTimeout(() => {
                 widgetText.innerText = advice;
@@ -152,7 +181,7 @@
         }
 
         function resetAI() {
-            // Espacio reservado para lógica de "reset" si fuera necesaria
+            widgetText.style.opacity = 1;
         }
     </script>
     

@@ -177,5 +177,14 @@ def water_plant(id):
     conn.close()
     return redirect(url_for('index'))
 
+@app.route('/delete/<int:id>')
+def delete_plant(id):
+    """Ruta para eliminar una planta por id."""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM plants WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)

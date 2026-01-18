@@ -17,7 +17,7 @@ body {
     font-family: 'Segoe UI', system-ui, sans-serif;
     background: linear-gradient(135deg, #e9edf5 0%, #f6f8fb 100%);
     transition: background 2s ease, color 1s ease;
-    overflow: auto; /* no bloquear scroll */
+    overflow: auto;
 }
 
 /* Textura de grano sutil */
@@ -136,9 +136,9 @@ body.weather-fog::after {
 
 /* --- 3. CONTENEDOR PRINCIPAL --- */
 .dashboard-container { 
-    max-width: 850px; 
+    max-width: 1100px; 
     margin: 0 auto; 
-    padding-top: 40px; 
+    padding: 40px 18px 140px 18px; 
     animation: fadeIn 1.5s ease-out; 
 }
 
@@ -257,3 +257,38 @@ progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #
 
 .ai-avatar { font-size: 2rem; }
 .heat-alert { border: 2px solid #ef5350; background: rgba(255, 235, 238, 0.9); }
+
+/* --- 10. LAYOUT PLANTAS: CASCADA HORIZONTAL FLEX --- */
+.plant-collection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.plant-card {
+    flex: 1 1 calc(50% - 20px);
+    min-width: 280px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+}
+
+.plant-card .glass-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.plant-card .glass-card .actions {
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .plant-card { flex: 1 1 100%; }
+}
+
+@media (min-width: 1200px) {
+    .plant-card { flex: 1 1 calc(33.33% - 20px); }
+}
