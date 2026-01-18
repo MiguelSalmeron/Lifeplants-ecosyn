@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifePlants: Zen Monitor</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -48,10 +49,28 @@
             </summary>
             <div class="glass-card" style="margin-top: 20px;">
                 <form action="/add" method="post">
-                    <label>Name</label>
-                    <input type="text" name="name" placeholder="Zen Master" required>
-                    <label>Species</label>
-                    <input type="text" name="species" placeholder="Bamboo" required>
+                    
+                    <label>Nickname</label>
+                    <input type="text" name="name" placeholder="e.g., Zen Master" required>
+                    
+                    <label>Specie</label>
+                    <input type="text" name="species" placeholder="e.g., Bamboo" required>
+                    
+                    <label>Type</label>
+                    <select name="type" required style="border-radius: 20px; border: 1px solid #dcdcdc; padding: 10px;">
+                        <option value="" disabled selected>Select a type...</option>
+                        <option value="Árbol">Árbol</option>
+                        <option value="Arbusto">Arbusto</option>
+                        <option value="Planta herbácea">Planta herbácea</option>
+                        <option value="Flor">Flor</option>
+                        <option value="Trepadora / Enredadera">Trepadora / Enredadera</option>
+                        <option value="Rastrera">Rastrera</option>
+                        <option value="Suculenta">Suculenta</option>
+                        <option value="Cactus">Cactus</option>
+                        <option value="Planta acuática">Planta acuática</option>
+                        <option value="Planta epífita">Planta epífita</option>
+                    </select>
+
                     <button type="submit" style="background: #2d6a4f; border: none; border-radius: 50px; margin-top: 15px; width: 100%;">Grow 🌱</button>
                 </form>
             </div>
@@ -73,7 +92,7 @@
                         <span class="status-badge" style="background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
                             {{ plant.status|upper }}
                         </span>
-                    </div>
+                        </div>
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
@@ -119,17 +138,24 @@
     </main>
 
     <script>
+        // Control de visibilidad y texto del Widget de IA
         const widgetText = document.getElementById('aiText');
+        
         function updateAI(advice) {
             if (!advice) return;
+            // Transición suave de opacidad para el cambio de texto
             widgetText.style.opacity = 0;
             setTimeout(() => {
                 widgetText.innerText = advice;
                 widgetText.style.opacity = 1;
             }, 200);
         }
-        function resetAI() {}
+
+        function resetAI() {
+            // Espacio reservado para lógica de "reset" si fuera necesaria
+        }
     </script>
+    
     <script src="{{ url_for('static', filename='js/zen_audio.js') }}"></script>
 </body>
 </html>

@@ -1,122 +1,259 @@
-/* Capa base: scroll y transición suave */
-body {
-  position: relative;
-  min-height: 100vh;
-  margin: 0;
-  padding-bottom: 120px;
-  color: var(--text-dark, #2c3e50);
-  background: linear-gradient(135deg, #e9edf5 0%, #f6f8fb 100%);
-  transition: background 2s ease, color 1s ease;
-  overflow: auto;
+/* --- 1. CONFIGURACIÓN BASE & VARIABLES --- */
+:root {
+    --primary: #2d6a4f;
+    --secondary: #52b788;
+    --text-dark: #2c3e50;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.6);
 }
 
-/* Capa de grano sutil */
+/* --- 2. FONDO BASE + CAPAS AMBIENTE (solo fondo) --- */
+body {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    padding-bottom: 120px;
+    color: var(--text-dark);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #e9edf5 0%, #f6f8fb 100%);
+    transition: background 2s ease, color 1s ease;
+    overflow: auto; /* no bloquear scroll */
+}
+
+/* Textura de grano sutil */
 body::before,
 body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
 }
 
 body::before {
-  background-image: radial-gradient(circle, rgba(44,62,80,0.03) 1px, transparent 1px);
-  background-size: 140px 140px;
-  opacity: 0.22;
+    background-image: radial-gradient(circle, rgba(44, 62, 80, 0.03) 1px, transparent 1px);
+    background-size: 140px 140px;
+    opacity: 0.22;
 }
 
-/* Capa visual de ciudad (ilustración) */
+/* Capa dinámica para clima (ilustraciones/animaciones suaves) */
 body::after {
-  background: var(--scene, none);
-  background-size: cover;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  opacity: 0.9;
-  transition: background 1s ease, opacity 1s ease, filter 1s ease;
+    opacity: 0.75;
+    transition: opacity 1.5s ease, filter 1.5s ease, background 2s ease;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-/* --- Ejemplos de escenas Tokio --- */
+/* ---------- ESTADOS DE CLIMA (pastel, low-sat) ---------- */
 
-/* Tokio despejado: skyline suave pastel */
-body.city-tokyo.weather-clear {
-  background: linear-gradient(135deg, #fdfbf7 0%, #e0f7fa 100%);
+/* Soleado */
+body.weather-clear {
+    background: linear-gradient(135deg, #fdfcf9 0%, #e0f4f8 100%);
 }
-body.city-tokyo.weather-clear::after {
-  --scene: url("data:image/svg+xml,%3Csvg width='1600' height='900' viewBox='0 0 1600 900' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1600' height='900' fill='%23e9f2fb'/%3E%3Cpath d='M0 620 Q200 560 400 620 T800 620 T1200 620 T1600 620 V900 H0 Z' fill='%23d6e3f3'/%3E%3Cpath d='M200 520 h60 v180 h-60z M260 500 h50 v200 h-50z M340 540 h70 v160 h-70z' fill='%23c7d5eb'/%3E%3Cpath d='M680 480 h80 v220 h-80z M760 460 h60 v240 h-60z' fill='%23c0d0e6'/%3E%3Cpath d='M950 420 h110 v280 h-110z' fill='%23b6c8e0'/%3E%3Cpath d='M600 260 h20 v380 h-20z M610 240 h8 v400 h-8z' fill='%239fb4d4'/%3E%3Cpath d='M608 180 l16 60 h-32z' fill='%23f7cdbc'/%3E%3Cpath d='M0 650 C200 640 300 660 500 650 C700 640 850 660 1050 650 C1250 640 1400 660 1600 650 V900 H0 Z' fill='%23f5f8fc'/%3E%3C/svg%3E");
-}
-
-/* Tokio lluvia: misma silueta + overlay de lluvia muy tenue */
-body.city-tokyo.weather-rain {
-  background: linear-gradient(180deg, #d8e1e6 0%, #e6edf2 100%);
-}
-body.city-tokyo.weather-rain::after {
-  --scene: url("data:image/svg+xml,%3Csvg width='1600' height='900' viewBox='0 0 1600 900' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1600' height='900' fill='%23e3e8ef'/%3E%3Cpath d='M0 620 Q200 560 400 620 T800 620 T1200 620 T1600 620 V900 H0 Z' fill='%23cfd8e3'/%3E%3Cpath d='M200 520 h60 v180 h-60z M260 500 h50 v200 h-50z M340 540 h70 v160 h-70z' fill='%23c0cad9'/%3E%3Cpath d='M680 480 h80 v220 h-80z M760 460 h60 v240 h-60z' fill='%23b7c3d4'/%3E%3Cpath d='M950 420 h110 v280 h-110z' fill='%23adb9cc'/%3E%3Cpath d='M600 260 h20 v380 h-20z M610 240 h8 v400 h-8z' fill='%2397a7c0'/%3E%3Cpath d='M608 180 l16 60 h-32z' fill='%23d9c7c0'/%3E%3Cpath d='M0 650 C200 640 300 660 500 650 C700 640 850 660 1050 650 C1250 640 1400 660 1600 650 V900 H0 Z' fill='%23eef2f6'/%3E%3C/svg%3E");
-  /* Lluvia fina */
-  box-shadow:
-    1px 10px 0 rgba(44,62,80,0.06),
-    3px 30px 0 rgba(44,62,80,0.05),
-    2px 50px 0 rgba(44,62,80,0.04);
-  background-blend-mode: normal;
-  animation: rain-fall 2s linear infinite;
-  opacity: 0.9;
+body.weather-clear::after {
+    background:
+      radial-gradient(circle at 18% 20%, rgba(255, 214, 196, 0.30) 0%, rgba(255, 214, 196, 0) 55%),
+      radial-gradient(circle at 78% 10%, rgba(255, 239, 217, 0.20) 0%, rgba(255, 239, 217, 0) 55%);
+    animation: glow-spin 28s ease-in-out infinite alternate;
 }
 
-/* --- Overlays de clima globales, reutilizables --- */
-
-/* Nubes suaves para cualquier ciudad */
-body.weather-clouds::before {
-  background:
-    radial-gradient(ellipse at 18% 30%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 46%),
-    radial-gradient(ellipse at 62% 42%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0) 52%),
-    radial-gradient(ellipse at 40% 64%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%);
-  filter: blur(9px);
-  animation: clouds-drift 36s ease-in-out infinite alternate;
+/* Nublado */
+body.weather-clouds {
+    background: linear-gradient(160deg, #f5f7fa 0%, #d7dee8 60%, #c9d3e0 100%);
+}
+body.weather-clouds::after {
+    background:
+      radial-gradient(ellipse at 18% 30%, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0) 46%),
+      radial-gradient(ellipse at 62% 42%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 52%),
+      radial-gradient(ellipse at 40% 64%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 55%);
+    filter: blur(9px);
+    animation: clouds-drift 36s ease-in-out infinite alternate;
 }
 
-/* Lluvia reutilizable (añade líneas finas, muy suaves) */
-body.weather-rain::before,
-body.weather-drizzle::before {
-  background-image: linear-gradient(180deg, rgba(44,62,80,0.06), rgba(44,62,80,0));
-  background-size: 2px 26px;
-  opacity: 0.20;
-  animation: rain-fall 2s linear infinite;
+/* Lluvia / Llovizna */
+body.weather-rain,
+body.weather-drizzle {
+    background: linear-gradient(180deg, #dbe3e7 0%, #e9f0f3 100%);
+}
+body.weather-rain::after,
+body.weather-drizzle::after {
+    background-image: linear-gradient(180deg, rgba(44, 62, 80, 0.06), rgba(44, 62, 80, 0));
+    background-size: 2px 26px;
+    opacity: 0.20;
+    animation: rain-fall 2s linear infinite;
 }
 
-/* Tormenta: flash tenue */
-body.weather-thunderstorm::before {
-  background: radial-gradient(circle at 48% 42%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 40%);
-  opacity: 0;
-  animation: soft-flash 26s ease-in-out infinite;
+/* Tormenta */
+body.weather-thunderstorm {
+    background: linear-gradient(180deg, #d7d4df 0%, #c7ced8 100%);
+}
+body.weather-thunderstorm::after {
+    background: radial-gradient(circle at 48% 42%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 40%);
+    opacity: 0;
+    animation: soft-flash 26s ease-in-out infinite;
 }
 
-/* Niebla: banda horizontal difusa */
-body.weather-mist::before,
-body.weather-fog::before {
-  background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
-  filter: blur(10px);
-  animation: mist-drift 30s ease-in-out infinite alternate;
+/* Niebla */
+body.weather-mist,
+body.weather-fog {
+    background: linear-gradient(180deg, #e7efec 0%, #dfe9e6 100%);
+}
+body.weather-mist::after,
+body.weather-fog::after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    filter: blur(10px);
+    animation: mist-drift 30s ease-in-out infinite alternate;
 }
 
 /* ---------- Animaciones ---------- */
+@keyframes glow-spin {
+    from { transform: translate3d(-4%, -2%, 0) scale(1.02); opacity: 0.65; }
+    to   { transform: translate3d(6%, 4%, 0) scale(1.08); opacity: 0.85; }
+}
+
 @keyframes clouds-drift {
-  from { transform: translate3d(-4%, 0, 0) scale(1.03); opacity: 0.75; }
-  to   { transform: translate3d(4%, 2%, 0) scale(1.0); opacity: 0.9; }
+    from { transform: translate3d(-4%, 0, 0) scale(1.03); opacity: 0.75; }
+    to   { transform: translate3d(4%, 2%, 0) scale(1.0); opacity: 0.9; }
 }
 
 @keyframes rain-fall {
-  from { background-position: 0 -32px; }
-  to   { background-position: 0 32px; }
+    from { background-position: 0 -32px; }
+    to   { background-position: 0 32px; }
 }
 
 @keyframes soft-flash {
-  0%, 92%, 100% { opacity: 0; filter: brightness(1); }
-  94% { opacity: 0.35; filter: brightness(1.06); }
-  96% { opacity: 0.15; filter: brightness(1.03); }
-  98% { opacity: 0;   filter: brightness(1); }
+    0%, 92%, 100% { opacity: 0; filter: brightness(1); }
+    94% { opacity: 0.35; filter: brightness(1.06); }
+    96% { opacity: 0.15; filter: brightness(1.03); }
+    98% { opacity: 0;   filter: brightness(1); }
 }
 
 @keyframes mist-drift {
-  from { transform: translate3d(-3%, 0, 0) scale(1.02); opacity: 0.55; }
-  to   { transform: translate3d(3%, 0, 0) scale(1.0); opacity: 0.65; }
+    from { transform: translate3d(-3%, 0, 0) scale(1.02); opacity: 0.55; }
+    to   { transform: translate3d(3%, 0, 0) scale(1.0); opacity: 0.65; }
 }
+
+/* --- 3. CONTENEDOR PRINCIPAL --- */
+.dashboard-container { 
+    max-width: 850px; 
+    margin: 0 auto; 
+    padding-top: 40px; 
+    animation: fadeIn 1.5s ease-out; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 4. TARJETAS DE CRISTAL (Glassmorphism) --- */
+.glass-card { 
+    background: var(--glass-bg); 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px; 
+    padding: 30px; 
+    margin-bottom: 30px; 
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    border: 1px solid var(--glass-border);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover { 
+    transform: translateY(-5px); 
+    border-color: var(--secondary); 
+}
+
+/* --- 5. TEXTOS Y HEADER --- */
+.weather-section h1 { 
+    color: var(--primary); 
+    font-weight: 800; 
+    margin-bottom: 5px; 
+    letter-spacing: -0.5px;
+}
+.weather-section h3 { 
+    color: var(--secondary); 
+    font-weight: 600; 
+    letter-spacing: 2px; 
+    text-transform: uppercase; 
+    font-size: 0.85rem;
+}
+
+/* --- 6. BUSCADOR REDONDEADO --- */
+.city-search { display: flex; gap: 10px; margin-top: 25px; }
+
+.city-search input { 
+    border-radius: 50px; 
+    border: 1px solid #dcdcdc; 
+    background: rgba(255,255,255,0.9); 
+    color: var(--text-dark); 
+    padding-left: 25px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.city-search button { 
+    border-radius: 50px; 
+    background-color: var(--primary); 
+    border: none; 
+    padding: 0 35px; 
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+.city-search button:hover { transform: scale(1.05); background-color: #1b4332; }
+
+/* --- 7. GRÁFICOS DE PLANTAS (SVG) --- */
+.plant-svg { 
+    width: 130px; height: 130px; margin: 0 auto; display: block; 
+    filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.08)); 
+}
+.plant-path { transition: all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); transform-origin: bottom center; }
+
+/* Estados de la planta */
+.status-happy .plant-path { fill: #4caf50; transform: rotate(0deg) scale(1); }
+.status-thirsty .plant-path { fill: #ffb74d; transform: rotate(15deg) scale(0.95); }
+.status-critical .plant-path { fill: #ef5350; transform: rotate(65deg) scale(0.85) translateY(15px); }
+
+/* Animación de "Respiración" */
+.status-happy .plant-svg { animation: float 6s infinite ease-in-out; }
+@keyframes float { 
+    0% { transform: translateY(0px); } 
+    50% { transform: translateY(-10px); } 
+    100% { transform: translateY(0px); } 
+}
+
+/* --- 8. BARRAS DE PROGRESO --- */
+progress { height: 12px; border-radius: 10px; background: #eaeff2; border: none; }
+progress::-webkit-progress-bar { background: #eaeff2; border-radius: 10px; }
+progress::-webkit-progress-value { border-radius: 10px; transition: width 1s ease; }
+progress.happy::-webkit-progress-value { background: linear-gradient(90deg, #a8e063, #56ab2f); }
+progress.thirsty::-webkit-progress-value { background: linear-gradient(90deg, #f7971e, #ffd200); }
+progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #cb2d3e, #ef473a); }
+
+/* --- 9. WIDGETS FLOTANTES --- */
+.ai-companion-widget {
+    position: fixed; bottom: 30px; right: 30px; width: 340px;
+    background: #ffffff; 
+    border-left: 5px solid var(--primary);
+    border-radius: 12px; padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    z-index: 1000; font-family: 'Courier New', monospace; font-size: 0.9rem;
+    color: #333; display: flex; align-items: center; gap: 15px;
+    transition: opacity 0.3s;
+}
+
+.music-widget { position: fixed; bottom: 30px; left: 30px; z-index: 1000; }
+
+.music-widget button {
+    border-radius: 50px; padding: 12px 25px;
+    border: 2px solid #2c3e50; 
+    background: rgba(255,255,255,0.9);
+    color: #2c3e50; font-weight: 700; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.music-widget button:hover { transform: scale(1.05); }
+
+.ai-avatar { font-size: 2rem; }
+.heat-alert { border: 2px solid #ef5350; background: rgba(255, 235, 238, 0.9); }
