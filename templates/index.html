@@ -6,16 +6,15 @@
     <title>LifePlants: Zen Monitor</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        /* --- ESTÉTICA ZEN --- */
         body { 
             background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);
             color: #2c3e50;
             min-height: 100vh;
+            padding-bottom: 100px;
         }
         
         .dashboard-container { max-width: 800px; margin: 0 auto; padding-top: 40px; }
         
-        /* Glassmorphism (Tarjetas de Cristal) */
         .glass-card { 
             background: rgba(255, 255, 255, 0.7); 
             backdrop-filter: blur(10px); 
@@ -24,16 +23,15 @@
             margin-bottom: 30px; 
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.18);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: default;
         }
         
-        .glass-card:hover { transform: translateY(-5px); }
+        .glass-card:hover { transform: translateY(-5px); border-color: #2d6a4f; }
         
-        /* Estilos de Texto */
         .weather-section h1 { color: #2d6a4f; font-weight: 800; margin-bottom: 5px; }
         .weather-section h3 { color: #52b788; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;}
         
-        /* Buscador Estilizado */
         .city-search { display: flex; gap: 10px; margin-top: 20px; }
         .city-search input { 
             border-radius: 50px; border: 1px solid #b7e4c7; 
@@ -43,34 +41,45 @@
             border-radius: 50px; background-color: #2d6a4f; border: none; padding: 0 30px; 
         }
 
-        /* --- BIO-GRAPHICS & PLANTS --- */
         .plant-svg { width: 120px; height: 120px; margin: 0 auto; display: block; filter: drop-shadow(0px 10px 5px rgba(0,0,0,0.1)); }
         .plant-path { transition: all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); transform-origin: bottom center; }
 
-        /* Estados Visuales */
         .status-happy .plant-path { fill: #4caf50; transform: rotate(0deg) scale(1); }
         .status-thirsty .plant-path { fill: #ffb74d; transform: rotate(15deg) scale(0.9); }
         .status-critical .plant-path { fill: #ef5350; transform: rotate(65deg) scale(0.8) translateY(10px); }
 
-        /* Animación Zen */
         .status-happy .plant-svg { animation: float 4s infinite ease-in-out; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
-        /* Barras de Progreso */
         progress { height: 15px; border-radius: 10px; background: #e0e0e0; }
         progress::-webkit-progress-bar { background: #e0e0e0; border-radius: 10px; }
         progress.happy::-webkit-progress-value { background: linear-gradient(90deg, #a8e063, #56ab2f); }
         progress.thirsty::-webkit-progress-value { background: linear-gradient(90deg, #f7971e, #ffd200); }
         progress.critical::-webkit-progress-value { background: linear-gradient(90deg, #cb2d3e, #ef473a); }
 
-        /* Burbuja de IA */
-        .ai-bubble {
-            background: #fff; border-left: 4px solid #40c057; 
-            padding: 15px; border-radius: 0 15px 15px 0;
-            font-style: italic; color: #555; margin-top: 15px;
-            font-size: 0.9rem; position: relative;
+        .ai-companion-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 320px;
+            background: #ffffff;
+            border-left: 5px solid #2d6a4f;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 1000;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #333;
+            animation: slideIn 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        .ai-bubble::before { content: "🌱 Sage Advice:"; font-weight: bold; display: block; color: #2d6a4f; margin-bottom: 5px; }
+
+        .ai-avatar { font-size: 2rem; }
+        
+        @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .heat-alert { border: 2px solid #ef5350; background: rgba(255, 235, 238, 0.9); }
     </style>
@@ -85,7 +94,7 @@
             </hgroup>
             
             <form action="/" method="get" class="city-search">
-                <input type="text" name="city" placeholder="Search location (e.g., Tokyo)" value="{{ current_city }}" required>
+                <input type="text" name="city" placeholder="Search location..." value="{{ current_city }}" required>
                 <button type="submit">Sync 🌏</button>
             </form>
             
@@ -94,17 +103,15 @@
                     <h2 style="font-size: 2.5rem; margin:0;">{{ temp }}°C</h2>
                     <small>in {{ weather.name if weather else current_city }}</small>
                 </div>
-                <div style="display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 2rem; margin-right: 10px;">
-                        {% if temp > 30 %}☀️{% elif temp < 15 %}❄️{% else %}⛅{% endif %}
-                    </span>
+                <div>
+                    <h2>{% if temp > 30 %}☀️{% elif temp < 15 %}❄️{% else %}⛅{% endif %}</h2>
                     <small>{{ weather.weather[0].main if weather else 'Offline' }}</small>
                 </div>
             </div>
 
             {% if temp > 30 %}
             <div style="background: #ffebee; color: #c62828; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.85rem;">
-                🔥 <strong>High Evaporation Detected.</strong> Water decay rate increased by 2.5x.
+                🔥 <strong>Heat Alert:</strong> Evaporation x2.5 active.
             </div>
             {% endif %}
         </div>
@@ -116,9 +123,9 @@
             <div class="glass-card" style="margin-top: 20px;">
                 <form action="/add" method="post">
                     <label>Name</label>
-                    <input type="text" name="name" placeholder="e.g., Zen Master" required>
+                    <input type="text" name="name" placeholder="Zen Master" required>
                     <label>Species</label>
-                    <input type="text" name="species" placeholder="e.g., Bamboo" required>
+                    <input type="text" name="species" placeholder="Bamboo" required>
                     <button type="submit" style="background: #2d6a4f; border: none; border-radius: 50px; margin-top: 10px;">Grow 🌱</button>
                 </form>
             </div>
@@ -126,7 +133,11 @@
 
         <div class="grid">
             {% for plant in plants %}
-            <div class="glass-card status-{{ plant.status }}">
+            <div class="glass-card status-{{ plant.status }}" 
+                 data-advice="{{ plant.advice }}"
+                 onmouseenter="updateAI(this.dataset.advice)" 
+                 onmouseleave="resetAI()">
+                
                 <div class="grid">
                     <div>
                         <strong style="font-size: 1.2rem;">{{ plant.name }}</strong>
@@ -149,26 +160,44 @@
                     </svg>
                 </div>
                 
-                <label><small>Hydration Level: {{ plant.humidity }}%</small></label>
+                <label><small>Hydration: {{ plant.humidity }}%</small></label>
                 <progress value="{{ plant.humidity }}" max="100" class="{{ plant.status }}"></progress>
                 
-                {% if plant.advice %}
-                <div class="ai-bubble">
-                    {{ plant.advice }}
-                </div>
-                {% endif %}
-                
                 <a href="/water/{{ plant.id }}" role="button" style="width: 100%; margin-top: 20px; border-radius: 50px; background: transparent; border: 2px solid #2d6a4f; color: #2d6a4f;">
-                    💧 Water Plant
+                    💧 Water
                 </a>
             </div>
             {% else %}
             <div style="text-align: center; color: #888; padding: 40px;">
-                <h2>🍂 The garden is empty.</h2>
                 <p>Plant a seed to begin.</p>
             </div>
             {% endfor %}
         </div>
+
+        <div class="ai-companion-widget" id="aiWidget">
+            <div class="ai-avatar">🤖</div>
+            <div id="aiText">I’m watching your plants. Always watching.</div>
+        </div>
+
     </main>
+
+    <script>
+        const widgetText = document.getElementById('aiText');
+        
+        function updateAI(advice) {
+            // Evita actualizar si no hay consejo
+            if (!advice) return;
+            
+            widgetText.style.opacity = 0;
+            setTimeout(() => {
+                widgetText.innerText = advice;
+                widgetText.style.opacity = 1;
+            }, 200);
+        }
+
+        function resetAI() {
+            // Opcional: regresar al mensaje default
+        }
+    </script>
 </body>
 </html>

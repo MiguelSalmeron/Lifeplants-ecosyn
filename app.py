@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 
-# --- CONFIGURACIÓN ---
+# Configuration
 OPENWEATHER_KEY = os.getenv('OPENWEATHER_API_KEY')
 GEMINI_KEY = os.getenv('GEMINI_API_KEY')
 
@@ -34,7 +34,6 @@ def init_db():
 
 init_db()
 
-# --- LÓGICA DE CLIMA ---
 def get_weather(city_name):
     if not OPENWEATHER_KEY: return None
     try:
@@ -44,44 +43,40 @@ def get_weather(city_name):
     except:
         return None
 
-# --- LÓGICA DE IA (ROBUSTA Y SIEMPRE ACTIVA) ---
 def get_gemini_advice(species, temp, humidity, city):
-    # 1. Verificación de clave
+    # Fallback quotes for offline mode or API limits
+    user_quotes = [
+        "Your plant needs water. I don’t. I just need purpose.",
+        "Everything looks fine. No complaints from the leaves so far.",
+        "Time to water. The plant will appreciate it silently.",
+        "According to my advanced calculations™: a bit more sunlight.",
+        "I’m not a plant, but I’m pretty sure this one is thirsty.",
+        "Watering approved. The plant remains emotionally unavailable.",
+        "The soil is dry. This is not a judgment.",
+        "Good care today. If plants could clap, this one would.",
+        "Nothing critical detected. You may relax. I cannot.",
+        "Your plant is doing well. I’ll keep watching. Always watching."
+    ]
+
     if not GEMINI_KEY: 
-        print("🔴 DEBUG: No se encontró GEMINI_API_KEY en .env")
-        return "Please configure your AI API Key in .env"
+        return random.choice(user_quotes)
     
     try:
-        # Prompt: Asistente sabio que siempre tiene algo que decir
-        prompt = (f"Act as a wise zen gardener. Plant: {species}. "
-                  f"Location: {city} (Temp: {temp}°C). Soil Humidity: {humidity}%. "
-                  f"If healthy, give a poetic fact. If thirsty, give urgent advice. "
-                  f"Max 1 short sentence in English.")
+        prompt = (f"Act as a friendly but slightly robotic botanical assistant. "
+                  f"Plant: {species}. Location: {city} (Temp: {temp}°C). Humidity: {humidity}%. "
+                  f"Give a short 1-sentence observation. Be witty like: 'I just need purpose' or 'calculations™'.")
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        
-        # Timeout de 3 segundos para proteger la app
         response = requests.post(url, json=payload, timeout=3)
         
         if response.status_code == 200:
             return response.json()['candidates'][0]['content']['parts'][0]['text']
-        else:
-            print(f"⚠️ DEBUG API Error: {response.status_code} - {response.text}")
-    except Exception as e:
-        print(f"⚠️ DEBUG Network Error: {e}")
+    except:
+        pass 
+        
+    return random.choice(user_quotes)
 
-    # --- PLAN B: FRASES DE RESPALDO (Por si falla la API) ---
-    fallback_tips = [
-        f"Nature thrives in {city}, but keep an eye on hydration.",
-        "Remember: Overwatering is as dangerous as drought.",
-        f"At {temp}°C, ensure your plant gets the right light.",
-        "Photosynthesis is the silent music of the earth.",
-        "Check the soil moisture; roots need to breathe too."
-    ]
-    return random.choice(fallback_tips)
-
-# --- MOTOR DE FÍSICA ---
 def calculate_status_physics(last_watered_str, current_temp):
     try:
         last_watered = datetime.fromisoformat(last_watered_str)
@@ -89,8 +84,6 @@ def calculate_status_physics(last_watered_str, current_temp):
         last_watered = datetime.now()
 
     hours_passed = (datetime.now() - last_watered).total_seconds() / 3600
-    
-    # Física: base 5% + multiplicador de calor
     base_decay_rate = 5 
     multiplier = 2.5 if current_temp > 30 else 1.0
     
@@ -103,11 +96,9 @@ def calculate_status_physics(last_watered_str, current_temp):
         
     return int(current_humidity), status
 
-# --- RUTAS ---
 @app.route('/')
 def index():
-    city = request.args.get('city', 'Managua') # Ciudad por defecto
-    
+    city = request.args.get('city', 'Managua')
     weather_data = get_weather(city)
     current_temp = weather_data['main']['temp'] if weather_data else 35 
     
@@ -118,7 +109,6 @@ def index():
     processed_plants = []
     for plant in db_plants:
         humidity, status = calculate_status_physics(plant['last_watered'], current_temp)
-        # Llamamos a la IA (que ahora nunca fallará en silencio)
         advice = get_gemini_advice(plant['species'], current_temp, humidity, city)
         
         processed_plants.append({
