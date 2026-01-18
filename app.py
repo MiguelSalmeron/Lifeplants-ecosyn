@@ -3,7 +3,7 @@ import sqlite3
 import requests
 import random
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -92,6 +92,30 @@ def get_gemini_advice(species, temp, humidity, city):
         
     return random.choice(fallback_quotes)
 
+def chatbot_reply(user_message, city):
+    """Genera respuesta corta de coaching botánico general."""
+    fallback = "Ask me about watering, light, or heat/cold protection. Keep it specific."
+    if not user_message:
+        return fallback
+    if not GEMINI_KEY:
+        return fallback
+    try:
+        prompt = (
+            "You are a concise plant care coach. "
+            f"User location: {city}. Question: {user_message}. "
+            "Respond with ONE actionable, specific tip (max 35 words). "
+            "If heat risk, mention shade/evaporation. If cold risk, mention insulation. "
+            "Tone: friendly, direct. No disclaimers."
+        )
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        response = requests.post(url, json=payload, timeout=4)
+        if response.status_code == 200:
+            return response.json()['candidates'][0]['content']['parts'][0]['text']
+    except:
+        pass
+    return fallback
+
 # --- MOTOR DE FÍSICA SIMULADA ---
 def calculate_status_physics(last_watered_str, current_temp):
     try:
@@ -170,6 +194,14 @@ def delete_plant(id):
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
+
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    data = request.get_json() or {}
+    message = (data.get('message') or '').strip()
+    city = (data.get('city') or 'Managua').strip()
+    reply = chatbot_reply(message, city)
+    return jsonify({"reply": reply})
 
 if __name__ == '__main__':
     app.run(debug=True)
