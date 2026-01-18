@@ -511,3 +511,41 @@ body.night-mode .heat-alert {
 }
 body.night-mode progress { background: #1f2937; }
 body.night-mode progress::-webkit-progress-bar { background: #1f2937; }
+
+/* --- 15. BRÚJULA SOLAR --- */
+.solar-compass {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+.solar-compass .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 213, 128, 0.8), rgba(255, 183, 77, 0.9));
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    transform: rotate(var(--compass-rotation, 0deg));
+    transition: transform 0.6s ease-out;
+}
+.solar-compass .icon::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 14px;
+    background: #fffbeb;
+    border-radius: 3px;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(255,255,255,0.7);
+}
+body.night-mode .solar-compass { color: var(--text-night); }
+body.night-mode .solar-compass .icon {
+    background: linear-gradient(135deg, rgba(96,165,250,0.7), rgba(59,130,246,0.75));
+}

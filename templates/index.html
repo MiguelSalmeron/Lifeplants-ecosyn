@@ -29,6 +29,11 @@
                 <button type="button" id="pickOnMapBtn" class="outline">Pick on map 🗺️</button>
             </form>
 
+            <div style="margin-top: 10px;" class="solar-compass">
+                <div class="icon" id="solarCompassIcon" aria-hidden="true"></div>
+                <span id="solarCompassLabel">Sun path</span>
+            </div>
+
             {% if temp > 30 %}
             <div class="heat-alert" style="margin-top: 12px; padding: 15px; border-radius: 15px;">
                 🔥 <strong>Heat Alert:</strong> Evaporation x2.5 active.
@@ -213,6 +218,21 @@
             const isRain = body.classList.contains('weather-rain') || body.classList.contains('weather-drizzle') || body.classList.contains('weather-thunderstorm');
             if (isLate || isCloudy || isRain) {
                 body.classList.add('night-mode');
+            }
+        })();
+
+        // Brújula solar: rotación según hora local (simple)
+        (function solarCompass() {
+            const icon = document.getElementById('solarCompassIcon');
+            const label = document.getElementById('solarCompassLabel');
+            if (!icon) return;
+            const now = new Date();
+            const angle = ((now.getHours() + now.getMinutes() / 60) / 24) * 360 - 90; // -90 para apuntar a la izquierda al amanecer
+            icon.style.setProperty('--compass-rotation', `${angle}deg`);
+            if (label) {
+                const hours = now.getHours().toString().padStart(2,'0');
+                const mins = now.getMinutes().toString().padStart(2,'0');
+                label.textContent = `Sun path • ${hours}:${mins}`;
             }
         })();
     </script>
